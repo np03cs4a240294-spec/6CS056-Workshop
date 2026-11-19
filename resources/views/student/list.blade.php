@@ -26,7 +26,8 @@
                 <td>
                     <a href="/students/{{ $student->id }}">View</a>
                     <a href="/students/{{ $student->id }}/edit">Edit</a>
-                    <form action="/students/{{ $student->id }}" method="POST" style="display:inline">
+                    <form action="/students/{{ $student->id }}" method="POST" style="display:inline"
+                        onsubmit="return confirm('Are you sure you want to delete this student?')">
                         @csrf
                         @method('DELETE')
                         <button type="submit">Delete</button>

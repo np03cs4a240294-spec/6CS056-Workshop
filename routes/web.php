@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Student;
+use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\Rule;
@@ -72,4 +73,73 @@ Route::delete('/students/{id}', function ($id) {
     $student->delete();
 
     return redirect('/students')->with('success', 'Student deleted successfully!');
+});
+
+/* COURSES */
+
+// List all courses
+Route::get('/courses', function () {
+    $courses = Course::all();
+    return view('course.list', ['courses' => $courses]);
+})->name('courses.index');
+
+// Show the create form  (must come BEFORE /courses/{id})
+Route::get('/courses/create', function () {
+    return view('course.create');
+});
+
+// Save a new course
+Route::post('/courses', function (Request $request) {
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string|max:1000',
+        'duration' => 'required|integer|min:1',
+        'fee' => 'required|numeric|min:0',
+        'difficulty' => 'required|in:Easy,Medium,Hard',
+        'is_active' => 'required|boolean',
+    ]);
+
+    $course = Course::create($validated);
+
+    return redirect()->route('courses.index')
+        ->with('success', "Course {$course->name} created successfully!");
+});
+
+// Show one course
+Route::get('/courses/{id}', function ($id) {
+    $course = Course::findOrFail($id);
+    return view('course.detail', ['course' => $course]);
+});
+
+// Show the edit form
+Route::get('/courses/{id}/edit', function ($id) {
+    $course = Course::findOrFail($id);
+    return view('course.edit', ['course' => $course]);
+});
+
+// Save changes
+Route::put('/courses/{id}', function (Request $request, $id) {
+    $course = Course::findOrFail($id);
+
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string|max:1000',
+        'duration' => 'required|integer|min:1',
+        'fee' => 'required|numeric|min:0',
+        'difficulty' => 'required|in:Easy,Medium,Hard',
+        'is_active' => 'required|boolean',
+    ]);
+
+    $course->update($validated);
+
+    return redirect('/courses/' . $course->id)
+        ->with('success', 'Course updated successfully!');
+});
+
+// Delete a course
+Route::delete('/courses/{id}', function ($id) {
+    $course = Course::findOrFail($id);
+    $course->delete();
+
+    return redirect('/courses')->with('success', 'Course deleted successfully!');
 });
